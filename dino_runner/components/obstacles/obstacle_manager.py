@@ -1,34 +1,45 @@
-import pygame
 import random
+import pygame
 from dino_runner.components.obstacles.captus import Cactus
 from dino_runner.components.obstacles.bird import Bird
-from dino_runner.utils.constants import SMALL_CACTUS, BIRD
+from dino_runner.utils.constants import LARGE_CACTUS, SMALL_CACTUS, BIRD
 
 class ObstacleManager:
-
     def __init__(self):
         self.obstacles = []
-        self.index = 0
-
-    def update(self, game_speed, game):
-        for i in range(1):
-            self.ram = [random.randint(0,1)]
-            for ram in self.ram:
-                self.index += 1
-                if ram == 0:
-                    if len(self.obstacles) == 0:
-                        self.obstacles.append(Cactus(SMALL_CACTUS))
-                else:
-                    if len(self.obstacles) == 0:
-                            self.obstacles.append(Bird(BIRD))           
-
+    
+    def update(self, game):
+        if len(self.obstacles) == 0:
+            obstacle_type = random.randint(0, 2)
+            if obstacle_type == 0:
+                LargeCactus = Cactus(LARGE_CACTUS)
+                LargeCactus.rect.y = 305
+                self.obstacles.append(LargeCactus)
+            elif obstacle_type == 1:
+                SmallCactus = Cactus(SMALL_CACTUS)
+                SmallCactus.rect.y = 325
+                self.obstacles.append(SmallCactus)
+            elif obstacle_type == 2:
+                bird = Bird(BIRD)
+                bird.rect.y = 250
+                self.obstacles.append(bird)
+              
         for obstacle in self.obstacles:
-            obstacle.update(game_speed, self.obstacles)
-            if game.player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(300)
-                game.playing = False
-                break
-        
+            obstacle.update(game.game_speed, self.obstacles)
+            if game.player.dino_rect.colliderect(obstacle.rect) and game.player.shield == False:
+                game.player_heart_manager.reduce_heart()
+
+                if game.player_heart_manager.heart_count > 0:
+                    self.obstacles.pop()
+    
+                else:   
+                   pygame.time.delay(1000)
+                   self.obstacles.remove(obstacle)
+                   game.playing = False
+                   game.player_heart_manager.fill_hearts()
+                   game.death_count += 1
+                   break
+
     def draw(self, screen):
         for obstacle in self.obstacles:
             obstacle.draw(screen)
