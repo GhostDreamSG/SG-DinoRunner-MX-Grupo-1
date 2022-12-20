@@ -19,3 +19,9 @@ def get_score_element(points):
     text_rect = text.get_rect()
     text_rect.center = (1000, 50)
     return (text, text_rect)
+
+def get_image(image, width = SCREEN_WIDTH//2, heigth = SCREEN_HEIGHT//2):
+    image = image 
+    image_rect = image.get_rect() 
+    image_rect.center = (width, heigth) 
+    return(image, image_rect) 

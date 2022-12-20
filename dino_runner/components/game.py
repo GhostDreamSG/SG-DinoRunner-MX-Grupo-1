@@ -1,11 +1,13 @@
 import pygame
+from pygame import mixer
+from dino_runner.components.cloud import Cloud
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.player_hearts.player_heart_manager import PlayerHeartManager
 
 from dino_runner.components import text_utils
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, HEART_COUNT
+from dino_runner.utils.constants import BG, GAME_OVER, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, HEART_COUNT
 
 
 class Game:
@@ -24,6 +26,7 @@ class Game:
         self.obstacle_manager = ObstacleManager()
         self.player_heart_manager = PlayerHeartManager()
         self.power_up_manager = PowerUpManager()
+        self.cloud = Cloud()
 
         self.death_count = 0
         self.points = 0
@@ -37,14 +40,19 @@ class Game:
     def run(self):
         # Game loop: events - update - draw
         self.playing = True
+        self.play_music()
         while self.playing:
             self.events()
             self.update()
             self.draw()
             if self.playing == False:
                 self.show_menu()
-                
-        
+
+    def play_music(self):
+        if self.playing == True:
+            pygame.mixer.music.load('dino_runner/sounds/music.mp3')
+            pygame.mixer.music.play(-1)
+            pygame.mixer.music.set_volume(0.1)
 
     def events(self):
         for event in pygame.event.get():
@@ -56,17 +64,29 @@ class Game:
         self.player.update(user_input)
         self.obstacle_manager.update(self)
         self.power_up_manager.update(self.points, self.game_speed, self.player)
+        self.cloud.update(self.game_speed)
         
 
     def draw(self):
         self.clock.tick(FPS)
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((255,255,255))
+        if self.points > 500 and self.points < 1000:
+            self.screen.fill((50,50,50))
+        if self.points > 1500 and self.points < 2000:
+            self.screen.fill((50,50,50))
+        if self.points > 2500 and self.points < 3000:
+            self.screen.fill((50,50,50))
+        if self.points > 3500 and self.points < 4000:
+            self.screen.fill((50,50,50))
+        if self.points > 4500 and self.points < 5000:
+            self.screen.fill((50,50,50))
         self.draw_score()
         self.draw_background()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         self.player_heart_manager.draw(self.screen)
         self.power_up_manager.draw(self.screen)
+        self.cloud.draw(self.screen)
         
        
         pygame.display.update()
@@ -108,6 +128,7 @@ class Game:
             text, text_rect = text_utils.get_centered_message('Press any key to START')
             self.screen.blit(text, text_rect)
         elif self.death_count > 0:
+            image, image_rect = text_utils.get_image(GAME_OVER, heigth = half_screen_height-70)
             text, text_rect = text_utils.get_centered_message('Press any Key to RESTART ')
             score, score_text = text_utils.get_centered_message('Your Score is: ' + str(self.points),    height = half_screen_height + 50)
             death, deaht_rect = text_utils.get_centered_message('Death count: ' + str(self.death_count), height = half_screen_height + 100)
@@ -115,6 +136,7 @@ class Game:
             self.screen.blit(score, score_text)
             self.screen.blit(text, text_rect)
             self.screen.blit(death, deaht_rect)
+            self.screen.blit(image, image_rect)
 
     def handle_key_event_on_menu(self):
         for event in pygame.event.get():

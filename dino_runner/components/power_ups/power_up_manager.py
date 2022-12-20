@@ -21,7 +21,6 @@ class PowerUpManager:
                 player.shield_time_up = powerup.start_time + ((random.randint(5,8) * 1000))
                 self.power_ups.remove(powerup)
 
-
     def draw(self, screen):
         for powerup in self.power_ups:
             powerup.draw(screen)
